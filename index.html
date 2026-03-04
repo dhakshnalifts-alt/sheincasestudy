@@ -1,141 +1,189 @@
-import React, { useState } from 'react';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
-import { AlertTriangle, CheckCircle, Factory, Leaf, ShieldCheck, TrendingUp, TrendingDown } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHEIN TRACE | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+    <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; transition: all 0.5s ease; }
+        .executive-bg { background-color: #f8fafc; }
+        .consumer-bg { background-color: #f0fdf4; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
-// Mock Data - Representing Shein's ESG Shift
-const supplierData = [
-  { name: 'Grade A', value: 45, color: '#10b981' },
-  { name: 'Grade B', value: 33, color: '#3b82f6' },
-  { name: 'Grade C', value: 15, color: '#f59e0b' },
-  { name: 'Failed', value: 7, color: '#ef4444' },
-];
+    <script type="text/babel">
+        const { useState } = React;
+        const { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } = Recharts;
 
-const emissionTrend = [
-  { month: 'Jan', actual: 2.1, target: 2.0 },
-  { month: 'Feb', actual: 2.3, target: 1.9 },
-  { month: 'Mar', actual: 2.2, target: 1.8 },
-  { month: 'Apr', actual: 2.1, target: 1.7 },
-  { month: 'May', actual: 2.0, target: 1.6 },
-  { month: 'Jun', actual: 1.9, target: 1.5 },
-];
+        // --- Data ---
+        const supplierData = [
+            { name: 'Grade A', value: 45, color: '#000000' },
+            { name: 'Grade B', value: 33, color: '#3b82f6' },
+            { name: 'Grade C', value: 15, color: '#f59e0b' },
+            { name: 'Failed', value: 7, color: '#ef4444' },
+        ];
 
-const TransparencyDashboard = () => {
-  const [activeTab, setActiveTab] = useState('Overview');
+        const consumerImpactData = [
+            { name: 'Recycled Poly', value: 40, fill: '#22c55e' },
+            { name: 'Organic Cotton', value: 30, fill: '#4ade80' },
+            { name: 'Standard Poly', value: 30, fill: '#e2e8f0' },
+        ];
 
-  const StatCard = ({ title, value, trend, icon: Icon, statusColor }) => (
-    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-      <div className="flex justify-between items-start">
-        <div>
-          <p className="text-sm font-medium text-gray-500">{title}</p>
-          <h3 className="text-2xl font-bold mt-1 text-gray-900">{value}</h3>
-        </div>
-        <div className={p-2 rounded-lg ${statusColor}}>
-          <Icon size={20} className="text-white" />
-        </div>
-      </div>
-      <div className="flex items-center mt-4">
-        {trend > 0 ? <TrendingUp size={16} className="text-green-500 mr-1" /> : <TrendingDown size={16} className="text-red-500 mr-1" />}
-        <span className={text-sm font-medium ${trend > 0 ? 'text-green-500' : 'text-red-500'}}>
-          {Math.abs(trend)}% vs Last Qtr
-        </span>
-      </div>
-    </div>
-  );
+        const carbonData = [
+            { year: '2021', emissions: 18.2 },
+            { year: '2022', emissions: 21.5 },
+            { year: '2023', emissions: 24.8 },
+            { year: '2024', emissions: 26.2 },
+        ];
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-8 font-sans">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">SHEIN <span className="text-blue-600">TRACE</span></h1>
-          <p className="text-gray-500">Real-time ESG Compliance & Operational Transparency</p>
-        </div>
-        <div className="flex gap-3">
-          <button className="px-4 py-2 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition">Investor Report</button>
-          <button className="px-4 py-2 bg-white border border-gray-200 rounded-lg font-medium hover:bg-gray-50 transition">Public View</button>
-        </div>
-      </div>
+        const Dashboard = () => {
+            const [view, setView] = useState('Executive');
+            const isExec = view === 'Executive';
 
-      {/* KPI Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard title="Suppliers Audited" value="78.4%" trend={12} icon={Factory} statusColor="bg-blue-500" />
-        <StatCard title="Carbon Intensity" value="26.2M mt" trend={-4} icon={Leaf} statusColor="bg-green-500" />
-        <StatCard title="Blockchain Traceability" value="15.2%" trend={45} icon={ShieldCheck} statusColor="bg-purple-500" />
-        <StatCard title="Compliance Risk" value="High" trend={-2} icon={AlertTriangle} statusColor="bg-red-500" />
-      </div>
+            return (
+                <div className={`min-h-screen pb-10 ${isExec ? 'executive-bg' : 'consumer-bg'}`}>
+                    {/* NAV BAR - Color changes based on view */}
+                    <nav className={`${isExec ? 'bg-white' : 'bg-green-600'} border-b px-6 py-4 mb-8 shadow-md`}>
+                        <div className="max-w-6xl mx-auto flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                                <span className={`${isExec ? 'bg-black text-white' : 'bg-white text-green-700'} px-3 py-1 font-black italic text-lg`}>SHEIN</span>
+                                <span className={`${isExec ? 'text-blue-600' : 'text-white'} font-bold underline text-lg`}>TRACE</span>
+                            </div>
+                            <button 
+                                onClick={() => setView(isExec ? 'Consumer' : 'Executive')}
+                                className={`${isExec ? 'bg-black text-white' : 'bg-white text-green-700'} px-6 py-2 rounded-full text-xs font-black shadow-lg hover:scale-105 transition-transform`}
+                            >
+                                SWITCH TO {isExec ? 'CONSUMER' : 'EXECUTIVE'} VIEW
+                            </button>
+                        </div>
+                    </nav>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        {/* Emission Chart */}
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-          <h3 className="text-lg font-bold mb-6 text-gray-800">Carbon Emission vs. 2030 Target</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={emissionTrend}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="actual" stroke="#ef4444" strokeWidth={3} dot={{ r: 6 }} name="Actual Emissions" />
-                <Line type="dashed" dataKey="target" stroke="#10b981" strokeDasharray="5 5" name="Target Path" />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+                    <main className="max-w-6xl mx-auto px-6">
+                        <div className="mb-10 text-center md:text-left">
+                            <h1 className={`text-5xl font-black ${isExec ? 'text-slate-900' : 'text-green-800'}`}>
+                                {isExec ? "Global Compliance Engine" : "Your Impact Matters"}
+                            </h1>
+                            <p className="text-slate-500 font-medium italic mt-2">
+                                {isExec ? "Real-time monitoring of regulatory and supply chain risk." : "Tracking how we make your clothes better for the planet."}
+                            </p>
+                        </div>
 
-        {/* Supplier Breakdown */}
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-          <h3 className="text-lg font-bold mb-6 text-gray-800">Supplier ESG Rating Distribution</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={supplierData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip cursor={{fill: '#f3f4f6'}} />
-                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                  {supplierData.map((entry, index) => (
-                    <Cell key={cell-${index}} fill={entry.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
+                        {/* STAT CARDS - Content changes based on view */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                            {isExec ? (
+                                <>
+                                    <div className="bg-white p-6 rounded-3xl border-2 border-slate-100 shadow-xl">
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Audit Score</p>
+                                        <h2 className="text-4xl font-black mt-2">78.4%</h2>
+                                        <p className="text-green-600 font-bold text-sm mt-3">↑ Higher Audit Velocity</p>
+                                    </div>
+                                    <div className="bg-white p-6 rounded-3xl border-2 border-red-100 shadow-xl">
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Carbon Risk</p>
+                                        <h2 className="text-4xl font-black mt-2 text-red-600">HIGH</h2>
+                                        <p className="text-red-500 font-bold text-sm mt-3">⚠ 26.2M mt Output</p>
+                                    </div>
+                                    <div className="bg-white p-6 rounded-3xl border-2 border-slate-100 shadow-xl text-orange-600">
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Legal Status</p>
+                                        <h2 className="text-4xl font-black mt-2">PENDING</h2>
+                                        <p className="text-slate-400 font-bold text-sm mt-3 font-mono">FR/EU AUDIT: OCT 2024</p>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="bg-white p-6 rounded-3xl border-2 border-green-100 shadow-xl">
+                                        <p className="text-xs font-bold text-green-600 uppercase tracking-widest">Better Materials</p>
+                                        <h2 className="text-4xl font-black mt-2">15.2%</h2>
+                                        <p className="text-green-500 font-bold text-sm mt-3">Verified Recycled Content</p>
+                                    </div>
+                                    <div className="bg-white p-6 rounded-3xl border-2 border-green-100 shadow-xl">
+                                        <p className="text-xs font-bold text-green-600 uppercase tracking-widest">Traceability</p>
+                                        <h2 className="text-4xl font-black mt-2">90%</h2>
+                                        <p className="text-green-500 font-bold text-sm mt-3">Factories Verified by Third Party</p>
+                                    </div>
+                                    <div className="bg-white p-6 rounded-3xl border-2 border-green-100 shadow-xl">
+                                        <p className="text-xs font-bold text-green-600 uppercase tracking-widest">Water Saved</p>
+                                        <h2 className="text-4xl font-black mt-2">1.2M L</h2>
+                                        <p className="text-green-500 font-bold text-sm mt-3">Digital Printing Efficiency</p>
+                                    </div>
+                                </>
+                            )}
+                        </div>
 
-      {/* Compliance Table */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-gray-50">
-          <h3 className="text-lg font-bold text-gray-800">Regulatory & Governance Incidents</h3>
-        </div>
-        <table className="w-full text-left">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Region</th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Type</th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Status</th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Impact Score</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            <tr>
-              <td className="px-6 py-4 font-medium text-gray-900">European Union</td>
-              <td className="px-6 py-4 text-gray-600">Ecodesign Compliance Audit</td>
-              <td className="px-6 py-4"><span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full">In Progress</span></td>
-              <td className="px-6 py-4 font-semibold text-red-500">Critical</td>
-            </tr>
-            <tr>
-              <td className="px-6 py-4 font-medium text-gray-900">United States</td>
-              <td className="px-6 py-4 text-gray-600">UFLPA Verification</td>
-              <td className="px-6 py-4"><span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">Verified</span></td>
-              <td className="px-6 py-4 font-semibold text-green-500">Low</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-};
+                        {/* CHARTS - Content changes focus based on view */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                            <div className="bg-white p-8 rounded-3xl border shadow-lg">
+                                <h3 className="text-xl font-black mb-6">{isExec ? "Carbon Growth vs Targets" : "Our Renewable Energy Path"}</h3>
+                                <div style={{ width: '100%', height: 300 }}>
+                                    <ResponsiveContainer>
+                                        <LineChart data={carbonData}>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                            <XAxis dataKey="year" axisLine={false} tickLine={false} />
+                                            <YAxis axisLine={false} tickLine={false} />
+                                            <Tooltip />
+                                            <Line type="monotone" dataKey="emissions" stroke={isExec ? "#ef4444" : "#22c55e"} strokeWidth={5} dot={{r: 6}} />
+                                        </LineChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
 
-export default TransparencyDashboard;
+                            <div className="bg-white p-8 rounded-3xl border shadow-lg">
+                                <h3 className="text-xl font-black mb-6">{isExec ? "Supplier Risk Distribution" : "Sustainable Material Mix"}</h3>
+                                <div style={{ width: '100%', height: 300 }}>
+                                    <ResponsiveContainer>
+                                        {isExec ? (
+                                            <BarChart data={supplierData}>
+                                                <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                                                <YAxis hide />
+                                                <Tooltip cursor={{fill: '#f8fafc'}} />
+                                                <Bar dataKey="value" radius={[10, 10, 0, 0]}>
+                                                    {supplierData.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                                    ))}
+                                                </Bar>
+                                            </BarChart>
+                                        ) : (
+                                            <PieChart>
+                                                <Pie data={consumerImpactData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8" label>
+                                                    {consumerImpactData.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                                                    ))}
+                                                </Pie>
+                                                <Tooltip />
+                                            </PieChart>
+                                        )}
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* VIEW-SPECIFIC FOOTER */}
+                        <div className={`mt-10 p-8 rounded-3xl flex flex-col md:flex-row justify-between items-center ${isExec ? 'bg-slate-900 text-white' : 'bg-green-100 text-green-900 border-2 border-green-200'}`}>
+                            <div>
+                                <h4 className="font-black text-xl mb-1">{isExec ? "⚠ Critical Risk Detected" : "🌿 Clean-Fashion Milestone"}</h4>
+                                <p className={isExec ? "text-slate-400" : "text-green-700 font-medium"}>
+                                    {isExec ? "Predicted French regulatory fine: €40.5M based on current waste projections." : "We've reached 40% recycled materials in our MOTF collection!"}
+                                </p>
+                            </div>
+                            <button className={`mt-4 md:mt-0 px-8 py-3 rounded-full font-black text-sm ${isExec ? 'bg-white text-black' : 'bg-green-700 text-white shadow-lg shadow-green-200'}`}>
+                                {isExec ? "MITIGATION PLAN" : "LEARN MORE"}
+                            </button>
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<Dashboard />);
+    </script>
+</body>
+</html>
